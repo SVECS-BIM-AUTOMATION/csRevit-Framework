@@ -1,0 +1,448 @@
+# csRevit Full Core Blueprint, Documentation, and Code Boilerplates
+
+This file contains the complete operational specification, installation procedures, and full-fidelity code boilerplates for the csRevit Microkernel ecosystem. It is optimized for direct consumption by LLMs and AI coding assistants.
+
+---
+
+## 1. System Overview & Core Architecture
+
+csRevit is a dynamic Sync Engine and Microkernel framework for Autodesk Revit that completely decouples User Interface generation from compiled C# code. 
+
+### Core Architectural Mechanics:
+- **Zero-Restart UI Generation**: Ribbons, tabs, panels, and items are dynamically generated on the fly based on Windows folder hierarchies and explicit naming suffixes (e.g., `.tab`, `.panel`, `.pushbutton`). Changes reflect mid-session upon triggering a sync.
+- **Multi-Version Concurrency**: Designed to run cleanly across different runtime systems seamlessly (e.g., .NET 4.8 for Revit 2024 and older vs. .NET 8.0 for Revit 2025 and newer) without causing file lock collisions or assembly environment crashes.
+- **The Loader Engine**: A native bootstrapper client placed locally inside `%AppData%\Autodesk\ApplicationPlugins\csRevit.bundle` initializes on Revit startup, parses local/network directories, and builds out ribbon mappings dynamically.
+- **Telemetry & Logs**: Automatically updates a centralized, thread-safe telemetry queue logging software run speeds, active structural users, and runtime success metrics to a localized `Telemetry.csv` file on the master drive.
+
+---
+
+## 2. Global Installation & Deployment Guide
+
+### System Prerequisites
+- **Autodesk Revit**: Version 2019 through 2025 installed natively.
+- **Operating System**: Microsoft Windows 10 or Windows 11 (x64 platform target).
+- **Network Paths**: Active read/write credentials to the corporate central deployment target drive (e.g., `Z:\BIM\csRevit_Master`).
+- **Licensing Core**: Active validation key securely acquired via the official storefront (https://appstore.svecs.in).
+
+### Bootstrap Setup Sequence
+1. Secure the executable deployment pack (`csRevit_Installer.exe`) from the management dashboard or app portal.
+2. Run the deployment pack. The installer automatically drops runtime binaries directly into the user application data directory:
+   `C:\Users\%USERNAME%\AppData\Roaming\Autodesk\ApplicationPlugins\csRevit.bundle`
+3. Launch Autodesk Revit. Paste either the 15-Day Free Trial Key or Commercial License Key into the secure validation panel.
+4. Navigate to the newly generated `csRevit Core` tab on the ribbon, click **Global Settings** (Gear Icon), and link the **Master Network Path** field directly to the shared network storage folder (e.g., `Z:\BIM\csRevit_Master`).
+5. Select a discipline classification filter (e.g., `Architecture`, `MEP`, or `All`) to govern structural visibility filters.
+6. Click **Sync Tools** to instantly build out the custom tools ribbon mid-session.
+
+### Local Sandbox Development Workflow
+To safely prototype and compile new commands without altering production infrastructure, developers utilize a localized testing sandbox:
+1. Local staging testing directory: `C:\Users\%USERNAME%\AppData\Roaming\csRevit\DEV`
+2. Any structured directory folder configurations placed in this workspace generate a dedicated `🛠️ DEV LAB` test tab dynamically inside Revit.
+3. Developers configure their project configurations (`.csproj`) to deploy compiled assets instantly to this folder workspace, then select **Reload UI** on the core tab to observe execution changes instantly.
+4. To move verified code live, developers select the **Publish Tool** option to securely package and relocate the folder schema directly to the Master Network Drive.
+
+---
+
+## 3. Ribbon Generation, Manifest Layouts & Folder Rules
+
+The execution engine reads file directory extensions and names to formulate UI elements without hardcoded C# formatting.
+
+### Directory Naming Rules:
+- **Prefix Sorting**: Numbers followed by an underscore (e.g., `01_`) govern layout positions from left-to-right or top-to-bottom. The parsing engine automatically strips these prefixes from the visual ribbon element.
+- **Suffix Mapping**:
+  - `.tab` — Establishes a new primary ribbon category tab.
+  - `.panel` — Registers a functional grouping layout container.
+  - `.pushbutton` — Instantiates a single command item button execution loop.
+  - `.pulldown` — Maps a vertical drop-down list grouping container.
+  - `.splitbutton` — Creates an automated toggle split-button interface.
+  - `.stack` — Vertically compresses up to three buttons together to conserve screen layout.
+
+### Folder Directory Payload Architecture:
+An active command directory (e.g., `Export PDF.pushbutton`) must contain the following structural file components to evaluate correctly:
+- `R24L/` (Folder) — Hosts compiled binaries target-built for .NET Framework 4.8 (Revit 2024 and older).
+- `R25H/` (Folder) — Hosts compiled binaries target-built for .NET 8.0 (Revit 2025 and newer).
+- `icon.png` — Visual graphic file ($32 \times 32$ pixels). The loader automatically scales this down to $16 \times 16$ if the tool resides inside a vertical `.stack` file setup.
+- `help.txt` *(Optional)* — String literal data that automatically maps to the native F1 tool tooltip layout.
+- `demo.mp4` *(Optional)* — Short video asset that streams inside the tooltip popup menu on user mouse hover events.
+- `class.txt` *(Optional)* — Standard text string specifying the exact target entry-point C# Class name when grouping multiple executable tools inside a shared, singular compiled assembly DLL file.
+- `config.json` *(Required for Comboboxes)* — Array map file specifying option choices populated inside the combo box container dropdown view.
+
+---
+
+## 4. Software Development Kit (SDK) & Engineering Guidelines
+
+All custom extensions, plug-in additions, and script payloads generated for use inside the framework must explicitly comply with the following 6 Golden Rules:
+
+### The 6 Golden Rules of csRevit Engineering:
+1. **Interface Binding**: Direct UI components must cleanly inherit from `Autodesk.Revit.UI.IExternalCommand`. Background automated engines or pane interfaces must implement `Autodesk.Revit.UI.IExternalApplication`.
+2. **Transaction Scoping**: Every external command implementation class must be declared with an explicit database runtime behavior marker attribute: `[Transaction(TransactionMode.Manual)]`.
+3. **UI Display Attributes**: Use `[DisplayName("Button Name")]` and `[Description("Tooltip Info")]` tags directly above class signatures to control global search matching configurations and display formatting.
+4. **Platform Multi-Targeting**: Multi-target your project environments to cleanly emit runtime assemblies into both `.NET 4.8` (`R24L`) configurations and `.NET 8.0` (`R25H`) targets.
+5. **Assembly Linking Reference**: Link your assemblies against `csRevit.API.dll`. The base bootstrapper engine provides this library layout in memory on initialization.
+6. **Reference Collision Preventions**: For every reference to native Revit binary dependencies (`RevitAPI.dll`, `RevitAPIUI.dll`) and our shared library `csRevit.API.dll`, the developer MUST absolutely toggle the Visual Studio property **`Copy Local = False`** (or `<Private>False</Private>` inside the XML configurations). Failing to implement this will result in fatal reference collision exceptions in the application domain memory footprint.
+
+### WPF Interaction Paradigms:
+- **Modal Dialogs**: Blocks interactions with the Revit workspace window frame layout until exited. Initiated from `.pushbutton` directories via `myWindow.ShowDialog();` within safe execution loops.
+- **Modeless Palettes**: Keeps the user UI frames floating while allowing direct document element interactions. Loses immediate API context loop control. Developers must use Revit's native `IExternalEventHandler` and `ExternalEvent` mechanics to securely line up write transactions back onto the primary execution UI main thread.
+- **Dockable Panes**: Snaps deep structural layouts alongside native Revit properties matrices. These cannot initialize on simple command clicks and must be built as an background service and registered via the `Services/` workspace pipeline on the boot initialization step.
+
+---
+
+## 5. Complete C# Code Boilerplate Templates
+
+### A. Basic Pushbutton Script Layout (No Custom UI)
+```csharp
+using System;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Attributes;
+
+namespace csRevit_Tools
+{
+    [Transaction(TransactionMode.Manual)]
+    [DisplayName("Quick Format")]
+    [Description("Formats the active view.")]
+    public class QuickFormatCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            // Acquire Document reference context hooks safely
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+
+            try
+            {
+                // [csRevit-Architecture-Rule]: Insert custom document modifications inside transaction scopes here
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed; // Automatically intercepts exceptions and routes errors to the csRevit Debug Console
+            }
+        }
+    }
+}
+
+B. Standard Modal Dialog WPF Initialization Template
+
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Attributes;
+
+namespace csRevit_Tools
+{
+    [Transaction(TransactionMode.Manual)]
+    public class LaunchModalCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            // 1. Initialize custom WPF window entity passing operational data context
+            MyWpfWindow window = new MyWpfWindow(commandData.Application.ActiveUIDocument.Document);
+
+            // 2. Attach the main Revit application window frame container as the parent handle to maintain correct window placement positioning
+            var helper = new System.Windows.Interop.WindowInteropHelper(window);
+            helper.Owner = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+
+            // 3. Display modally to lock operational threads safely until user resolution
+            window.ShowDialog();
+
+            return Result.Succeeded;
+        }
+    }
+}
+
+C. Modeless Dialog Palette & External Event Integration Template
+
+using System;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Attributes;
+
+namespace csRevit_Tools
+{
+    // 1. THE ASYNC EVENT HANDLER: Safely processes external UI events on the primary native Revit engine thread layout
+    public class MyModelessHandler : IExternalEventHandler
+    {
+        public void Execute(UIApplication app)
+        {
+            Document doc = app.ActiveUIDocument.Document;
+            using (Transaction t = new Transaction(doc, "Modeless Modification"))
+            {
+                t.Start();
+                // PLACE MODIFICATION LOGIC SECURELY HERE
+                t.Commit();
+            }
+        }
+        public string GetName() => "csRevit Modeless Handler";
+    }
+
+    // 2. THE COMMAND ENTRANCE TRIGGER: Instantiates the floating palette interface safely
+    [Transaction(TransactionMode.Manual)]
+    public class LaunchModelessCommand : IExternalCommand
+    {
+        // Keep window instance static to maintain a singleton interface layout pattern 
+        private static MyWpfWindow _modelessWindow = null; 
+
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            if (_modelessWindow != null && _modelessWindow.IsLoaded)
+            {
+                _modelessWindow.Focus(); // Re-focus interface if current workspace instance is already floating open
+                return Result.Succeeded;
+            }
+
+            // Construct and bind our safe modeless execution bridge systems
+            MyModelessHandler handler = new MyModelessHandler();
+            ExternalEvent exEvent = ExternalEvent.Create(handler);
+
+            // Inject the created event engine handler back directly into the custom WPF interface configuration
+            _modelessWindow = new MyWpfWindow(exEvent);
+
+            var helper = new System.Windows.Interop.WindowInteropHelper(_modelessWindow);
+            helper.Owner = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+
+            // Display Modeless to allow continuous underlying document access functions
+            _modelessWindow.Show();
+
+            return Result.Succeeded;
+        }
+    }
+}
+
+D. Data-Driven State Toggle Button Template (.toggle)
+
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Attributes;
+using csRevit.API; // Linked dependency for configuration tracking engines
+
+namespace csRevit_Tools
+{
+    [Transaction(TransactionMode.Manual)]
+    [DisplayName("Auto Dimension")]
+    public class AutoDimToggleCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            // Query the registry storage database to extract state assignments updated by the layout manager
+            string currentState = SettingsManager.ReadSetting("ToggleStates", "Auto Dimension", "Off");
+
+            if (currentState == "On")
+            {
+                TaskDialog.Show("Toggle", "Auto Dimensioning is now ENABLED.");
+            }
+            else
+            {
+                TaskDialog.Show("Toggle", "Auto Dimensioning is now DISABLED.");
+            }
+
+            return Result.Succeeded;
+        }
+    }
+}
+
+E. Data-Driven ComboBox Menu Selection Interface Template (.combobox)
+
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Attributes;
+using csRevit.API; 
+
+namespace csRevit_Tools
+{
+    [Transaction(TransactionMode.Manual)]
+    [DisplayName("Select Discipline")]
+    public class DisciplineComboBoxCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            // Intercept user selection metrics mapped dynamically into Registry cache spaces on click event actions
+            string selectedValue = SettingsManager.ReadSetting("Select Discipline", "ComboBoxValue", "");
+
+            TaskDialog.Show("Combo Box", $"You selected: {selectedValue}");
+
+            // Execute programmatic actions relative to selected option parameters...
+
+            return Result.Succeeded;
+        }
+    }
+}
+
+F. Idle/Background Application Event Tracking Template
+
+using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Events;
+using Autodesk.Revit.UI;
+
+namespace csRevit_Tools
+{
+    public class AutoAuditService : IExternalApplication
+    {
+        public Result OnStartup(UIControlledApplication app)
+        {
+            // Attach functional listener endpoints safely to base application pipeline updates
+            app.ControlledApplication.DocumentOpened += OnDocumentOpened;
+            app.ControlledApplication.DocumentSaved += OnDocumentSaved;
+            
+            return Result.Succeeded;
+        }
+
+        public Result OnShutdown(UIControlledApplication app)
+        {
+            // Clear hook attachments strictly on exit steps to avert severe application memory leaks
+            app.ControlledApplication.DocumentOpened -= OnDocumentOpened;
+            app.ControlledApplication.DocumentSaved -= OnDocumentSaved;
+            
+            return Result.Succeeded;
+        }
+
+        private void OnDocumentOpened(object sender, DocumentOpenedEventArgs e)
+        {
+            Document doc = e.Document;
+            if (doc.IsFamilyDocument) return;
+
+            // RUN SILENT DATA COMPLIANCE PROCESSING ASSIGNMENTS HERE
+            // [csRevit-Architecture-Rule]: Background events must avoid native UI TaskDialog calls to protect silent batch runs.
+        }
+
+        private void OnDocumentSaved(object sender, DocumentSavedEventArgs e)
+        {
+            Document doc = e.Document;
+            // Execute programmatic cloud synchronization logs or analytical metrics operations here
+        }
+    }
+}
+
+G. Hybrid SDK Connector Setup (Service Lifecycle + Interactive UI Trigger)
+
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using csRevit.API;
+
+namespace csRevit_MyHybridTool
+{
+    // PART 1: THE ENTERPRISE BACKGROUND DAEMON (Deployed into the global shared Services/ directory drive space)
+    public class MyEnterpriseService : IExternalApplication, IcsRevitBackgroundService
+    {
+        // 1. Expose a public static thread-safe initialization handle so interactive UI commands can find this specific host service
+        public static MyEnterpriseService Instance { get; private set; }
+
+        // 2. Populate contract mandates for the IcsRevitBackgroundService engine interface
+        public string ServiceName => "Enterprise Door Updater";
+        public string Version => "1.0.0";
+        public ServiceState CurrentState { get; private set; } = ServiceState.Offline;
+
+        public Result OnStartup(UIControlledApplication app)
+        {
+            Instance = this;
+            CurrentState = ServiceState.Idle; // Confirm ready status flags to underlying scheduler links
+            return Result.Succeeded;
+        }
+
+        public Result OnShutdown(UIControlledApplication app)
+        {
+            CurrentState = ServiceState.Offline;
+            return Result.Succeeded;
+        }
+
+        // 3. Execution pipeline endpoint invoked securely by clicking the foreground interface item
+        public Result ExecuteTriggerFromUI(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            CurrentState = ServiceState.Processing; // Lock thread execution metrics to block dangerous execution collisions
+            
+            try
+            {
+                Document doc = commandData.Application.ActiveUIDocument.Document;
+                TaskDialog.Show(ServiceName, "The UI Button successfully triggered the Background Service!");
+                return Result.Succeeded;
+            }
+            catch (System.Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+            finally
+            {
+                CurrentState = ServiceState.Idle; // Unlock status tracks upon resolution loop completions
+            }
+        }
+    }
+}
+
+
+
+H. Automated MSBuild Project Compilation Manifest (`.csproj`)
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Configure clean compilation binaries outputting safely for both structural target dependencies frameworks -->
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <Platforms>x64</Platforms>
+    <UseWPF>true</UseWPF>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!-- CONDITIONAL COMPILATION REFERENCE DIRECTIVES: RETRIEVAL SETTINGS TARGETING REVIT 2024 AND OLDER (R24L) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="RevitAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2024\RevitAPI.dll</HintPath>
+      <Private>False</Private> <!-- Explicitly translates compile flags to Copy Local = False -->
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2024\RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="csRevit.API">
+      <HintPath>$(AppData)\Autodesk\ApplicationPlugins\csRevit.bundle\Contents\2024\csRevit.API.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- CONDITIONAL COMPILATION REFERENCE DIRECTIVES: RETRIEVAL SETTINGS TARGETING REVIT 2025 AND NEWER (R25H) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <Reference Include="RevitAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\RevitAPI.dll</HintPath>
+      <Private>False</Private> <!-- Explicitly translates compile flags to Copy Local = False -->
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="csRevit.API">
+      <HintPath>$(AppData)\Autodesk\ApplicationPlugins\csRevit.bundle\Contents\2025\csRevit.API.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- AUTOMATED PIPELINE: SANDBOX DEPLOYMENT AND DYNAMIC CLASS.TXT MANIFEST GENERATOR INTERCEPT ENGINE -->
+  <Target Name="DeployToSandbox" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+    <PropertyGroup>
+      <!-- Leave blank if your target tool module layout doesn't execute background application services processes -->
+      <DevServicePath>$(AppData)\csRevit\DEV\Services\MyEnterpriseService</DevServicePath>
+      <!-- Target Deployment UI Workspace Paths mapping directly into our dynamic testing folders grid -->
+      <Btn1>$(AppData)\csRevit\DEV\02_Advanced.panel\Quick Select.splitbutton\Select All.pushbutton</Btn1>
+      <Btn2>$(AppData)\csRevit\DEV\02_Advanced.panel\Quick Select.splitbutton\Select None.pushbutton</Btn2>
+    </PropertyGroup>
+
+    <!-- AUTOMATIC STAGING MANIFESTATION: PIPING COPIES BACK OUT SECURELY INTO DEV ENVIRONMENT ASSETS CHANNELS -->
+    <!-- 1. DEPLOY ASSETS TO BACKGROUND SERVICE SANDBOX CHANNELS IF PATH VALUES ARE RECORDED -->
+    <Copy Condition="'$(TargetFramework)' == 'net48' And '$(DevServicePath)' != ''" SourceFiles="$(TargetPath)" DestinationFolder="$(DevServicePath)\R24L" />
+    <Copy Condition="'$(TargetFramework)' == 'net8.0-windows' And '$(DevServicePath)' != ''" SourceFiles="$(TargetPath)" DestinationFolder="$(DevServicePath)\R25H" />
+
+    <!-- 2. ROUTE AND COMPILE COPIES DIRECTLY TO FOREGROUND BUTTON ONE INTERFACES DETAILED PATHWAYS -->
+    <Copy Condition="'$(TargetFramework)' == 'net48'" SourceFiles="$(TargetPath)" DestinationFolder="$(Btn1)\R24L" />
+    <Copy Condition="'$(TargetFramework)' == 'net8.0-windows'" SourceFiles="$(TargetPath)" DestinationFolder="$(Btn1)\R25H" />
+    <!-- Autogenerate the internal class file descriptor mapping rule to completely isolate tracking classes -->
+    <WriteLinesToFile File="$(Btn1)\class.txt" Lines="SelectAllCommand" Overwrite="true" />
+
+    <!-- 3. ROUTE AND COMPILE COPIES DIRECTLY TO FOREGROUND BUTTON TWO INTERFACES DETAILED PATHWAYS -->
+    <Copy Condition="'$(TargetFramework)' == 'net48'" SourceFiles="$(TargetPath)" DestinationFolder="$(Btn2)\R24L" />
+    <Copy Condition="'$(TargetFramework)' == 'net8.0-windows'" SourceFiles="$(TargetPath)" DestinationFolder="$(Btn2)\R25H" />
+    <WriteLinesToFile File="$(Btn2)\class.txt" Lines="SelectNoneCommand" Overwrite="true" />
+  </Target>
+</Project>
