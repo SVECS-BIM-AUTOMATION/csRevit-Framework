@@ -1,7 +1,35 @@
-Copyright (c) 2026 SVECS BIM & AUTOMATION. All Rights Reserved.
+# End User License Agreement (EULA)
 
-The text, images, user manuals, implementation code, structural schemas, and architectural metadata documentation contained in this repository are the sole intellectual property of SVECS. 
+**Product:** csRevit Framework  
+**Copyright:** © 2026 SVECS BIM & AUTOMATION. All Rights Reserved.  
+**Official Store:** https://appstore.svecs.in  
 
-No part of this repository, or the accompanying csRevit software suite, may be reproduced, distributed, or transmitted in any form or by any means, including photocopying, recording, or other electronic or mechanical methods, without the prior written permission of the copyright holder, except in the case of brief quotations embodied in critical reviews and certain other noncommercial uses permitted by copyright law.
+IMPORTANT: PLEASE READ THIS END USER LICENSE AGREEMENT CAREFULLY BEFORE DOWNLOADING, INSTALLING, OR USING THE CSREVIT FRAMEWORK INSTALLER AND ASSOCIATED DOCUMENTATION.
 
-For licensing, trial activations, and authorized commercial use of the software, please purchase an official verification activation key via the official application store at https://appstore.svecs.in.
+---
+
+## 1. Commercial License Grant
+Subject to the timely payment of all applicable license fees via our official merchant portal at appstore.svecs.in and compliance with this Agreement, SVECS BIM & AUTOMATION grants you a limited, non-exclusive, non-transferable, revocable license to install and use the csRevit Framework executable binary solely for your internal business operations.
+
+* **Evaluation / Trial License:** If you are utilizing our 1-Month Free Trial, you are permitted to use the software solely for evaluation purposes. Upon expiration of the evaluation period, the software features will automatically lock until a valid commercial license key is acquired and applied.
+* **Per-Seat Limits:** Commercial licenses are tracked and enforced per machine or per concurrent user seat as specified during your checkout process. 
+
+## 2. Restrictions on Use
+You explicitly agree **NOT** to, and will not permit any third party to:
+1. **Decompile or Reverse Engineer:** Decompile, disassemble, reverse engineer, decrypt, or attempt to derive the source code of the csRevit Microkernel, Installer, or Sync Engine components.
+2. **Unauthorized Redistribution:** Sell, rent, lease, sublicense, distribute, mirror, or publicly host the compiled installer binaries (`.exe` / `.msi`) outside of your organization's internal deployment infrastructure.
+3. **Bypass Licensing Systems:** Alter, modify, or circumvent the license key validation framework, cryptographic checks, or expiration timers built into the software.
+
+## 3. Intellectual Property Ownership
+This repository contains documentation, metadata templates, and architectural specifications intended to assist customers in configuring their folder environments for the csRevit Framework. 
+
+SVECS BIM & AUTOMATION retains all right, title, and interest in and to the csRevit core software, binary compilations, logos, trade secrets, and underlying dynamic UI generation algorithms. No ownership rights are transferred to you under this Agreement.
+
+## 4. Termination
+This license terminates automatically if you fail to comply with any term or condition of this Agreement, or if your commercial subscription expires or is canceled. Upon termination, you must destroy all copies of the software installer and cease all usage of the sync engine framework across your machines.
+
+## 5. Contact & Enterprise Procurement
+For enterprise volume licensing agreements, multi-seat corporate deployment packages, or custom legal compliance procurement reviews, please reach out to our legal and billing desk:
+
+📩 **Email:** [support@svecs.in](mailto:support@svecs.in)  
+🌐 **Corporate Web:** [svecs.in](https://svecs.in)
