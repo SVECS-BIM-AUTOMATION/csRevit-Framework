@@ -20,11 +20,11 @@ The **csRevit Framework** is not a simple collection of standalone add-ins or ma
 ## 📊 The Enterprise Business Case (Estimated Annual ROI)
 Traditional deployment forces a BIM Manager to manually coordinate update cycles, manage file locks, and disrupt active user sessions. For an enterprise engineering or design firm, the manual overhead adds up quickly:
 
-| Firm Size | Updates per Month | Manual Downtime Overhead | csRevit Framework | **Estimated Annual Savings** |
-| :--- | :--- | :--- | :--- | :--- |
-| **25 Users** | 4 Updates | $1,250 / mo | See App Store | **$15,000+ / yr** |
-| **50 Users** | 4 Updates | $2,500 / mo | See App Store | **$30,000+ / yr** |
-| **100+ Users**| Continuous | $5,000+ / mo | Custom Tier | **$60,000+ / yr** |
+| Firm Size | Manual Downtime Overhead | csRevit Framework | **Estimated Annual Savings** |
+| :--- | :--- | :--- | :--- |
+| **25 Users** | $132 / mo | See App Store | **$1,584+ / yr** |
+| **50 Users** | $264 / mo | See App Store | **$3,168+ / yr** |
+| **100+ Users** | $528+ / mo | Custom Tier | **$6,336+ / yr** |
 
 *csRevit reduces tool deployment delays to exactly 0 seconds via automated synchronization.*
 
