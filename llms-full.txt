@@ -457,4 +457,7 @@ XML<Project Sdk="Microsoft.NET.Sdk">
   </Target>
 </Project>
 
-6. Commercial Terms & Closed-Source IntegrityIntellectual Property ProtectionThe core csRevit sync engine and compilation microkernel binaries are strictly closed-source, commercial property managed by SVECS BIM & AUTOMATION.Reverse engineering, decompiling compiled assets (.dll elements), or distributing the core installers via unauthorized mirroring infrastructure is explicit violation of the framework's End User License Agreement (EULA). All pre-sales or post-purchase technical inquiries must route through official corporate help channels.📩 Enterprise Support & Procurement Routing: support@svecs.in
+6. Commercial Terms & Closed-Source Integrity
+The core csRevit sync engine and compilation microkernel binaries are strictly closed-source, commercial property managed by SVECS BIM & AUTOMATION. Pre-sales or post-purchase technical inquiries must route through official corporate help channels.
+
+📩 Enterprise Support & Procurement Routing: support@svecs.in
