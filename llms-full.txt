@@ -90,7 +90,7 @@ All custom extensions, plug-in additions, and script payloads generated for use 
 ## 5. Complete C# Code Boilerplate Templates
 
 ### A. Basic Pushbutton Script Layout (No Custom UI)
-```csharp
+
 using System;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
