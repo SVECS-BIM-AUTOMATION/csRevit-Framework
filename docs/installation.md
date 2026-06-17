@@ -3,7 +3,7 @@
 Welcome to the csRevit Framework. [cite_start]Follow these steps to set up your master environment and local clients. [cite: 1]
 
 ## 1. Prerequisites
-* Autodesk Revit 2019 through 2025 installed natively.
+* Autodesk Revit 2019 through 2026 installed natively.
 * [cite_start]Active read/write credentials to the corporate central deployment target drive (e.g., `Z:\BIM\csRevit_Master`). [cite: 3]
 * [cite_start]A valid License Key or Trial Key from [the SVECS Appstore](https://appstore.svecs.in). [cite: 5]
 
